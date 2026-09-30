@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sree - AI Voice Assistant | Buddy Rachana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #3b0764 0%, #090919 50%, #020617 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glow circles */
+    .glow-orb-1 {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: rgba(236, 72, 153, 0.25);
+      filter: blur(90px);
+      border-radius: 50%;
+      top: 10%;
+      left: 15%;
+      z-index: 0;
+    }
+
+    .glow-orb-2 {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      background: rgba(56, 189, 248, 0.2);
+      filter: blur(90px);
+      border-radius: 50%;
+      bottom: 10%;
+      right: 15%;
+      z-index: 0;
+    }
+
+    .app-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 32px;
+      width: 100%;
+      max-width: 460px;
+      padding: 36px 26px;
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      font-size: 64px;
+      filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.6));
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.03); }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: linear-gradient(90deg, rgba(244, 114, 182, 0.15), rgba(56, 189, 248, 0.15));
+      color: #f472b6;
+      border: 1px solid rgba(244, 114, 182, 0.35);
+      box-shadow: 0 0 15px rgba(244, 114, 182, 0.2);
+    }
+
+    .chat-box {
+      width: 100%;
+      height: 250px;
+      background: rgba(15, 23, 42, 0.45);
+      border-radius: 20px;
+      padding: 18px;
+      overflow-y: auto;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: left;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .message {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 85%;
+      word-wrap: break-word;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .msg-user {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      align-self: flex-end;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-ai {
+      background: rgba(255, 255, 255, 0.09);
+      align-self: flex-start;
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom-left-radius: 4px;
+    }
+
+    .mic-button-container {
+      position: relative;
+      margin: 14px 0;
+    }
+
+    .mic-btn {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #38bdf8 100%);
+      border: none;
+      color: #fff;
+      font-size: 38px;
+      cursor: pointer;
+      box-shadow: 0 0 35px rgba(244, 114, 182, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      outline: none;
+    }
+
+    .mic-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 45px rgba(244, 114, 182, 0.8);
+    }
+
+    .mic-btn.listening {
+      animation: pulse-ring 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      background: linear-gradient(135deg, #ef4444, #f97316);
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.8); }
+      70% { box-shadow: 0 0 0 28px rgba(244, 114, 182, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0); }
+    }
+
+    .input-row {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 13px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 23, 42, 0.6);
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #f472b6;
+      box-shadow: 0 0 12px rgba(244, 114, 182, 0.3);
+    }
+
+    input[type="text"]::placeholder {
+      color: #64748b;
+    }
+
+    .send-btn {
+      padding: 13px 22px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-orb-1"></div>
+  <div class="glow-orb-2"></div>
+
+  <div class="app-card">
+    <div class="header">
+      <div class="avatar-wrapper">
+        <div class="avatar">🌸✨</div>
+      </div>
+      <h1>Sree AI (श्री)</h1>
+      <p class="subtitle">Cute Voice Assistant for <strong>Buddy Rachana</strong></p>
+      <div id="statusBadge" class="status-badge">श्री रेडी है (Ready)</div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message msg-ai">
+        ओहो! नमस्ते <strong>Buddy Rachana</strong> दीदी! आपकी क्यूट सी मज़ेदार श्री (Sree) हाजिर है! 🌸✨👧
+      </div>
+    </div>
+
+    <div class="mic-button-container">
+      <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎙️</button>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="textInput" placeholder="या यहाँ मैसेज टाइप करें..." onkeypress="handleKeyPress(event)">
+      <button class="send-btn" onclick="sendTextMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const user_name = "Buddy Rachana";
+    const chatBox = document.getElementById("chatBox");
+    const statusBadge = document.getElementById("statusBadge");
+    const micBtn = document.getElementById("micBtn");
+    const textInput = document.getElementById("textInput");
+
+    let isListening = false;
+    let recognition = null;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'hi-IN';
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add("listening");
+        statusBadge.innerText = "श्री सुन रही है... (Listening)";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        addMessage(transcript, 'user');
+        processUserQuery(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech Recognition Error:", event.error);
+        stopListening();
+        speakText("ओहो! श्री को आवाज़ साफ़ नहीं आई, दोबारा बोलिए ना!");
+      };
+
+      recognition.onend = () => {
+        stopListening();
+      };
+    }
+
+    function toggleListening() {
+      if (!recognition) {
+        alert("आपका ब्राउज़र Voice Input सपोर्ट नहीं करता। कृपया टाइप करके बात करें।");
+        return;
+      }
+      if (isListening) {
+        recognition.stop();
+        stopListening();
+      } else {
+        recognition.start();
+      }
+    }
+
+    function stopListening() {
+      isListening = false;
+      micBtn.classList.remove("listening");
+      statusBadge.innerText = "श्री रेडी है (Ready)";
+    }
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message");
+      msgDiv.classList.add(sender === 'user' ? 'msg-user' : 'msg-ai');
+      msgDiv.innerHTML = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hi-IN';
+        utterance.rate = 1.25;
+        utterance.pitch = 1.55; // Cute child pitch
+        
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Google hi-IN"));
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    async function processUserQuery(query) {
+      const q = query.toLowerCase();
+
+      if (q.includes("whatsapp") || q.includes("whatsaap") || q.includes("व्हाट्सएप")) {
+        const reply = `अरे वाह! श्री व्हाट्सएप खोल रही है ${user_name} दीदी... पर ज्यादा देर चैट मत करना! 🤭📱`;
+        addMessage(reply, 'ai');
+        speakText(reply);
+        window.open("https://web.whatsapp.com", "_blank");
+        return;
+      }
+
+      if (q.includes("youtube") || q.includes("यूट्यूब")) {
+        const reply = `श्री यूट्यूब खोल रही है ${user_name} दीदी! चलिए मस्त वीडियोस देखते हैं! 🎬🍿`;
+        addMessage(reply, 'ai');
+        speakText(reply);
+        window.open("https://www.youtube.com", "_blank");
+        return;
+      }
+
+      if (q.includes("google") || q.includes("गूगल")) {
+        const reply = `गूगल बाबा के पास जा रहे हैं ${user_name} दीदी! 🔍`;
+        addMessage(reply, 'ai');
+        speakText(reply);
+        window.open("https://www.google.com", "_blank");
+        return;
+      }
+
+      if (q.includes("who made you") || q.includes("tumhe kisne banaya") || q.includes("क्रिएटर")) {
+        const reply = `मुझे मेरी सबसे प्यारी ${user_name} दीदी ने बनाया है! मेरा नाम श्री (Sree) रखा है उन्होंने! 🌸💖`;
+        addMessage(reply, 'ai');
+        speakText(reply);
+        return;
+      }
+
+      statusBadge.innerText = "श्री सोच रही है... (Thinking)";
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: query, user_name: user_name })
+        });
+        
+        const data = await res.json();
+        const reply = data.reply || data.error || "ओहो! कुछ गड़बड़ हो गई।";
+        addMessage(reply, 'ai');
+        speakText(reply);
+      } catch (err) {
+        console.error(err);
+        const reply = `अरे! नेटवर्क एरर आया, पर मैं आपके पास ही हूँ ${user_name} दीदी!`;
+        addMessage(reply, 'ai');
+        speakText(reply);
+      } finally {
+        statusBadge.innerText = "श्री रेडी है (Ready)";
+      }
+    }
+
+    function sendTextMessage() {
+      const text = textInput.value.trim();
+      if (text) {
+        addMessage(text, 'user');
+        textInput.value = "";
+        processUserQuery(text);
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') {
+        sendTextMessage();
+      }
+    }
+  </script>
+</body>
+</html>
