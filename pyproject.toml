@@ -5,6 +5,3 @@ description = "Sree AI Voice Assistant for Buddy Rachana"
 dependencies = [
     "google-genai>=0.1.1",
 ]
-
-[tool.vercel]
-entrypoint = "api/chat.py"
