@@ -3,285 +3,286 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sree - AI Voice Assistant | Buddy Rachana</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Sree AI - Voice Assistant for Buddy Rachana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
     }
 
     body {
-      background: radial-gradient(circle at top left, #3b0764 0%, #090919 50%, #020617 100%);
+      background: #030014;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      gap: 40px;
       color: #fff;
-      padding: 20px;
-      overflow-x: hidden;
+      overflow: hidden;
+      padding: 30px 20px;
     }
 
-    /* Ambient background glow circles */
-    .glow-orb-1 {
+    /* Ambient dynamic glows */
+    .bg-glow-1 {
       position: absolute;
-      width: 300px;
-      height: 300px;
-      background: rgba(236, 72, 153, 0.25);
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.28) 0%, transparent 70%);
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
       filter: blur(90px);
-      border-radius: 50%;
-      top: 10%;
-      left: 15%;
       z-index: 0;
+      pointer-events: none;
     }
 
-    .glow-orb-2 {
+    .bg-glow-2 {
       position: absolute;
-      width: 320px;
-      height: 320px;
-      background: rgba(56, 189, 248, 0.2);
-      filter: blur(90px);
-      border-radius: 50%;
-      bottom: 10%;
-      right: 15%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.25) 0%, transparent 70%);
+      bottom: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      filter: blur(110px);
       z-index: 0;
+      pointer-events: none;
     }
 
-    .app-card {
+    /* Header */
+    .top-bar {
       position: relative;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 32px;
-      width: 100%;
-      max-width: 460px;
-      padding: 36px 26px;
-      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.05);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      z-index: 2;
       text-align: center;
     }
 
-    .header {
-      margin-bottom: 20px;
-    }
-
-    .avatar-wrapper {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 10px;
-    }
-
-    .avatar {
-      font-size: 64px;
-      filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.6));
-      animation: float 3s infinite ease-in-out;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-10px) scale(1.03); }
-    }
-
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #38bdf8 100%);
+    .title {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f472b6, #c084fc, #38bdf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: 1.5px;
+    }
+
+    .owner-tag {
+      font-size: 15px;
+      color: #94a3b8;
+      margin-top: 6px;
       letter-spacing: 0.5px;
     }
 
-    p.subtitle {
-      font-size: 14px;
-      color: #cbd5e1;
-      margin-top: 4px;
-    }
-
-    .status-badge {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 6px 18px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      background: linear-gradient(90deg, rgba(244, 114, 182, 0.15), rgba(56, 189, 248, 0.15));
+    .owner-tag strong {
       color: #f472b6;
-      border: 1px solid rgba(244, 114, 182, 0.35);
-      box-shadow: 0 0 15px rgba(244, 114, 182, 0.2);
+      font-weight: 700;
     }
 
-    .chat-box {
-      width: 100%;
-      height: 250px;
-      background: rgba(15, 23, 42, 0.45);
-      border-radius: 20px;
-      padding: 18px;
-      overflow-y: auto;
-      margin: 20px 0;
+    /* Center Stage: Futuristic AI Voice Orb */
+    .orb-stage {
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      text-align: left;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    }
-
-    .message {
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 85%;
-      word-wrap: break-word;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .msg-user {
-      background: linear-gradient(135deg, #ec4899, #8b5cf6);
-      align-self: flex-end;
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-
-    .msg-ai {
-      background: rgba(255, 255, 255, 0.09);
-      align-self: flex-start;
-      color: #f8fafc;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-bottom-left-radius: 4px;
-    }
-
-    .mic-button-container {
-      position: relative;
-      margin: 14px 0;
-    }
-
-    .mic-btn {
-      width: 86px;
-      height: 86px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #38bdf8 100%);
-      border: none;
-      color: #fff;
-      font-size: 38px;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 35px rgba(244, 114, 182, 0.5);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ai-orb-container {
+      position: relative;
+      width: 270px;
+      height: 270px;
       display: flex;
       justify-content: center;
       align-items: center;
-      outline: none;
     }
 
-    .mic-btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 45px rgba(244, 114, 182, 0.8);
-    }
-
-    .mic-btn.listening {
-      animation: pulse-ring 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
-      background: linear-gradient(135deg, #ef4444, #f97316);
-    }
-
-    @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.8); }
-      70% { box-shadow: 0 0 0 28px rgba(244, 114, 182, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0); }
-    }
-
-    .input-row {
+    /* Outer pulsating energy rings */
+    .energy-ring {
+      position: absolute;
       width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(244, 114, 182, 0.35);
+      animation: ripple 3s infinite linear;
+      opacity: 0;
+    }
+
+    .energy-ring:nth-child(2) {
+      animation-delay: 1s;
+    }
+
+    .energy-ring:nth-child(3) {
+      animation-delay: 2s;
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(0.8); opacity: 0.85; }
+      50% { opacity: 0.4; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+
+    /* The Main Glowing AI Core */
+    .ai-orb {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f472b6, #9333ea 50%, #06b6d4 90%);
+      box-shadow: 0 0 70px rgba(236, 72, 153, 0.65), inset 0 0 35px rgba(255, 255, 255, 0.55);
+      position: relative;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
+      justify-content: center;
+      align-items: center;
+      font-size: 60px;
+      animation: float-orb 4s infinite ease-in-out;
     }
 
-    input[type="text"] {
-      flex: 1;
-      padding: 13px 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(15, 23, 42, 0.6);
-      color: #fff;
-      outline: none;
-      font-size: 14px;
-      transition: border 0.3s;
+    @keyframes float-orb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.04); }
     }
 
-    input[type="text"]:focus {
-      border-color: #f472b6;
-      box-shadow: 0 0 12px rgba(244, 114, 182, 0.3);
+    /* Orb Listening State */
+    .orb-stage.listening .ai-orb {
+      background: radial-gradient(circle at 30% 30%, #ef4444, #f97316 60%, #eab308);
+      box-shadow: 0 0 90px rgba(239, 68, 68, 0.85), inset 0 0 45px rgba(255, 255, 255, 0.65);
+      transform: scale(1.18);
+      animation: listening-pulse 1.2s infinite ease-in-out;
     }
 
-    input[type="text"]::placeholder {
-      color: #64748b;
+    @keyframes listening-pulse {
+      0%, 100% { transform: scale(1.15); box-shadow: 0 0 80px rgba(239, 68, 68, 0.75); }
+      50% { transform: scale(1.25); box-shadow: 0 0 110px rgba(249, 115, 22, 0.95); }
     }
 
-    .send-btn {
-      padding: 13px 22px;
-      background: linear-gradient(135deg, #a855f7, #ec4899);
-      border: none;
-      border-radius: 16px;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+    /* Orb Speaking State */
+    .orb-stage.speaking .ai-orb {
+      background: radial-gradient(circle at 30% 30%, #22c55e, #06b6d4 50%, #8b5cf6);
+      box-shadow: 0 0 95px rgba(6, 182, 212, 0.9), inset 0 0 45px rgba(255, 255, 255, 0.65);
+      animation: speaking-wave 0.8s infinite ease-in-out;
     }
 
-    .send-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+    @keyframes speaking-wave {
+      0%, 100% { transform: scale(1.08); }
+      50% { transform: scale(1.22); }
+    }
+
+    /* Audio Waveform Bars */
+    .waveform {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      height: 38px;
+      margin-top: 26px;
+    }
+
+    .wave-bar {
+      width: 5px;
+      height: 8px;
+      background: #f472b6;
+      border-radius: 6px;
+      transition: height 0.2s ease;
+    }
+
+    .orb-stage.listening .wave-bar {
+      background: #f97316;
+      animation: wave 1s infinite ease-in-out;
+    }
+
+    .orb-stage.speaking .wave-bar {
+      background: #38bdf8;
+      animation: wave 0.6s infinite ease-in-out;
+    }
+
+    .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.5s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(7) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(8) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(9) { animation-delay: 0.1s; }
+
+    @keyframes wave {
+      0%, 100% { height: 8px; }
+      50% { height: 34px; }
+    }
+
+    /* Minimalist Borderless Floating Voice Status Text (No Box, No Border) */
+    .voice-status {
+      position: relative;
+      z-index: 2;
+      font-size: 19px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      max-width: 650px;
+      line-height: 1.5;
+      min-height: 30px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 25px rgba(244, 114, 182, 0.35);
+      transition: all 0.3s ease;
     }
   </style>
 </head>
 <body>
 
-  <div class="glow-orb-1"></div>
-  <div class="glow-orb-2"></div>
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
 
-  <div class="app-card">
-    <div class="header">
-      <div class="avatar-wrapper">
-        <div class="avatar">🌸✨</div>
-      </div>
-      <h1>Sree AI (श्री)</h1>
-      <p class="subtitle">Cute Voice Assistant for <strong>Buddy Rachana</strong></p>
-      <div id="statusBadge" class="status-badge">श्री रेडी है (Ready)</div>
+  <!-- Header -->
+  <div class="top-bar">
+    <div class="title">SREE AI (श्री)</div>
+    <div class="owner-tag">Personal Voice AI for <strong>Buddy Rachana</strong> 🌸</div>
+  </div>
+
+  <!-- Futuristic Glowing Voice Orb -->
+  <div class="orb-stage" id="orbStage" onclick="startHandsFreeVoice()">
+    <div class="ai-orb-container">
+      <div class="energy-ring"></div>
+      <div class="energy-ring"></div>
+      <div class="energy-ring"></div>
+      <div class="ai-orb" id="aiOrb">🌸</div>
     </div>
 
-    <div class="chat-box" id="chatBox">
-      <div class="message msg-ai">
-        ओहो! नमस्ते <strong>Buddy Rachana</strong> दीदी! आपकी क्यूट सी मज़ेदार श्री (Sree) हाजिर है! 🌸✨👧
-      </div>
-    </div>
-
-    <div class="mic-button-container">
-      <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎙️</button>
-    </div>
-
-    <div class="input-row">
-      <input type="text" id="textInput" placeholder="या यहाँ मैसेज टाइप करें..." onkeypress="handleKeyPress(event)">
-      <button class="send-btn" onclick="sendTextMessage()">Send</button>
+    <!-- Live Audio Waveform -->
+    <div class="waveform">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
     </div>
   </div>
 
+  <!-- Clean Borderless Floating Subtitle (Zero Boxes) -->
+  <div class="voice-status" id="speechText">ऑर्ब पर टैप करें और बोलिए...</div>
+  <div id="statusText" style="display:none;"></div>
+
   <script>
     const user_name = "Buddy Rachana";
-    const chatBox = document.getElementById("chatBox");
-    const statusBadge = document.getElementById("statusBadge");
-    const micBtn = document.getElementById("micBtn");
-    const textInput = document.getElementById("textInput");
+    const orbStage = document.getElementById("orbStage");
+    const aiOrb = document.getElementById("aiOrb");
+    const statusText = document.getElementById("statusText");
+    const speechText = document.getElementById("speechText");
 
     let isListening = false;
+    let isSpeaking = false;
+    let autoLoop = true;
     let recognition = null;
 
+    // Web Speech Recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
@@ -291,108 +292,195 @@
 
       recognition.onstart = () => {
         isListening = true;
-        micBtn.classList.add("listening");
-        statusBadge.innerText = "श्री सुन रही है... (Listening)";
+        orbStage.className = "orb-stage listening";
+        aiOrb.innerText = "👂";
+        statusText.innerText = "श्री सुन रही है (Listening...)";
+        speechText.innerText = "बोलिए Buddy Rachana दीदी, कान लगाकर सुन रही हूँ...";
       };
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        addMessage(transcript, 'user');
-        processUserQuery(transcript);
+        speechText.innerText = `"${transcript}"`;
+        handleVoiceCommand(transcript);
       };
 
       recognition.onerror = (event) => {
-        console.error("Speech Recognition Error:", event.error);
-        stopListening();
-        speakText("ओहो! श्री को आवाज़ साफ़ नहीं आई, दोबारा बोलिए ना!");
+        console.error("Speech Error:", event.error);
+        isListening = false;
+        orbStage.className = "orb-stage";
+        aiOrb.innerText = "🌸";
+        if (event.error === 'not-allowed') {
+          speechText.innerText = "कृपया ब्राउज़र में माइक्रोफ़ोन की अनुमति (Allow Microphone) दें!";
+          return;
+        }
+        if (autoLoop && !isSpeaking) {
+          setTimeout(startListeningSafely, 1000);
+        }
       };
 
       recognition.onend = () => {
-        stopListening();
+        isListening = false;
+        if (!isSpeaking) {
+          orbStage.className = "orb-stage";
+          aiOrb.innerText = "🌸";
+        }
       };
     }
 
-    function toggleListening() {
-      if (!recognition) {
-        alert("आपका ब्राउज़र Voice Input सपोर्ट नहीं करता। कृपया टाइप करके बात करें।");
-        return;
-      }
-      if (isListening) {
-        recognition.stop();
-        stopListening();
-      } else {
+    function startListeningSafely() {
+      if (!recognition || isListening || isSpeaking) return;
+      try {
         recognition.start();
+      } catch (e) {
+        console.log("Recognition error suppressed:", e);
       }
     }
 
-    function stopListening() {
-      isListening = false;
-      micBtn.classList.remove("listening");
-      statusBadge.innerText = "श्री रेडी है (Ready)";
+    function startHandsFreeVoice() {
+      autoLoop = true;
+      const welcome = `नमस्ते ${user_name} दीदी! आपकी श्री हाजिर है। हुक्म कीजिए सरकार!`;
+      speak(welcome);
     }
 
-    function addMessage(text, sender) {
-      const msgDiv = document.createElement("div");
-      msgDiv.classList.add("message");
-      msgDiv.classList.add(sender === 'user' ? 'msg-user' : 'msg-ai');
-      msgDiv.innerHTML = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function speakText(text) {
+    // Voice Output (Cute Child Sree)
+    function speak(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+        
+        if (recognition && isListening) {
+          recognition.stop();
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'hi-IN';
-        utterance.rate = 1.25;
-        utterance.pitch = 1.55; // Cute child pitch
-        
+        utterance.rate = 1.25; // energetic cute child speed
+        utterance.pitch = 1.55; // high child pitch
+
         const voices = window.speechSynthesis.getVoices();
-        const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Google hi-IN"));
+        const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Google hi-IN") || v.name.includes("Hindi"));
         if (femaleVoice) {
           utterance.voice = femaleVoice;
         }
+
+        utterance.onstart = () => {
+          isSpeaking = true;
+          orbStage.className = "orb-stage speaking";
+          aiOrb.innerText = "🗣️";
+          statusText.innerText = "श्री बोल रही है (Speaking...)";
+          speechText.innerText = text;
+        };
+
+        utterance.onend = () => {
+          isSpeaking = false;
+          orbStage.className = "orb-stage";
+          aiOrb.innerText = "🌸";
+          statusText.innerText = "श्री तैयार है (Listening Loop...)";
+          
+          // Automatic Non-Stop Hands-Free Loop
+          if (autoLoop) {
+            setTimeout(startListeningSafely, 400);
+          }
+        };
+
+        utterance.onerror = () => {
+          isSpeaking = false;
+          orbStage.className = "orb-stage";
+          aiOrb.innerText = "🌸";
+          if (autoLoop) {
+            setTimeout(startListeningSafely, 500);
+          }
+        };
 
         window.speechSynthesis.speak(utterance);
       }
     }
 
-    async function processUserQuery(query) {
+    // Voice Commands & Actions
+    async function handleVoiceCommand(query) {
       const q = query.toLowerCase();
 
+      // Command: Song / Music
+      if (q.includes("गाना") || q.includes("song") || q.includes("music") || q.includes("प्ले")) {
+        const reply = `अरे वाह! मस्त गाना बजा रही हूँ ${user_name} दीदी, झूमने के लिए तैयार हो जाइए! 🎶💃`;
+        speak(reply);
+        window.open("https://www.youtube.com/results?search_query=trending+songs", "_blank");
+        return;
+      }
+
+      // Command: WhatsApp
       if (q.includes("whatsapp") || q.includes("whatsaap") || q.includes("व्हाट्सएप")) {
-        const reply = `अरे वाह! श्री व्हाट्सएप खोल रही है ${user_name} दीदी... पर ज्यादा देर चैट मत करना! 🤭📱`;
-        addMessage(reply, 'ai');
-        speakText(reply);
+        const reply = `अरे वाह! व्हाट्सएप खोल रही हूँ ${user_name} दीदी... पर ज्यादा देर चैट मत करना! 🤭📱`;
+        speak(reply);
         window.open("https://web.whatsapp.com", "_blank");
         return;
       }
 
+      // Command: YouTube
       if (q.includes("youtube") || q.includes("यूट्यूब")) {
-        const reply = `श्री यूट्यूब खोल रही है ${user_name} दीदी! चलिए मस्त वीडियोस देखते हैं! 🎬🍿`;
-        addMessage(reply, 'ai');
-        speakText(reply);
+        const reply = `यूट्यूब हाजिर है ${user_name} दीदी! चलिए मस्त वीडियोस देखते हैं! 🎬🍿`;
+        speak(reply);
         window.open("https://www.youtube.com", "_blank");
         return;
       }
 
-      if (q.includes("google") || q.includes("गूगल")) {
-        const reply = `गूगल बाबा के पास जा रहे हैं ${user_name} दीदी! 🔍`;
-        addMessage(reply, 'ai');
-        speakText(reply);
-        window.open("https://www.google.com", "_blank");
+      // Command: Google / Search
+      if (q.includes("search") || q.includes("सर्च") || q.includes("गूगल")) {
+        const searchWord = q.replace("search", "").replace("सर्च", "").replace("गूगल", "").trim();
+        const reply = `गूगल बाबा से पूछ रही हूँ ${user_name} दीदी! 🔍`;
+        speak(reply);
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(searchWord || 'Google')}`, "_blank");
         return;
       }
 
-      if (q.includes("who made you") || q.includes("tumhe kisne banaya") || q.includes("क्रिएटर")) {
-        const reply = `मुझे मेरी सबसे प्यारी ${user_name} दीदी ने बनाया है! मेरा नाम श्री (Sree) रखा है उन्होंने! 🌸💖`;
-        addMessage(reply, 'ai');
-        speakText(reply);
+      // Command: Weather
+      if (q.includes("मौसम") || q.includes("weather")) {
+        const reply = `आज मौसम एकदम सुहाना है ${user_name} दीदी! खिड़की खोलिए और ठंडी हवा का मज़ा लीजिए! 🌤️🌈`;
+        speak(reply);
         return;
       }
 
-      statusBadge.innerText = "श्री सोच रही है... (Thinking)";
+      // Command: Joke / Funny
+      if (q.includes("चुटकुला") || q.includes("joke") || q.includes("हंसाओ") || q.includes("मजाक")) {
+        const jokes = [
+          "टीचर ने पूछा: बताओ न्यूटन का चौथा नियम क्या है? संजू बोला: जब पेट में भूख लगे, तो समोसा पेट की तरफ खिंचता है! 😂",
+          "एक मक्खी ने दूसरी से कहा: चलो इंसान के नाक पर बैठते हैं, वो ताली बजाकर हमारा स्वागत करेगा! 🤣"
+        ];
+        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+        speak(randomJoke);
+        return;
+      }
+
+      // Command: Shayari
+      if (q.includes("शायरी") || q.includes("shayari")) {
+        const reply = `अर्ज़ किया है... चाय में बिस्कुट डूब गया तो क्या रोना, जिंदगी में Buddy Rachana दीदी जैसी बॉस हो तो क्या खोना! वाह वाह! ☕💖`;
+        speak(reply);
+        return;
+      }
+
+      // Command: Time
+      if (q.includes("time") || q.includes("समय") || q.includes("टाइम")) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+        speak(`${user_name} दीदी, घड़ी में अभी ठीक ${timeStr} बजे हैं! ⏰`);
+        return;
+      }
+
+      // Command: Date
+      if (q.includes("date") || q.includes("तारीख") || q.includes("तारीख़") || q.includes("दिन")) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('hi-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        speak(`${user_name} दीदी, आज ${dateStr} है! 📅`);
+        return;
+      }
+
+      // Command: Creator
+      if (q.includes("who made you") || q.includes("tumhe kisne banaya") || q.includes("क्रिएटर") || q.includes("किसने बनाया")) {
+        const reply = `मुझे मेरी सबसे प्यारी Buddy Rachana दीदी ने बनाया है! मेरा नाम श्री (Sree) रखा है उन्होंने! 🌸💖`;
+        speak(reply);
+        return;
+      }
+
+      // General Questions -> Gemini AI
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -401,32 +489,19 @@
         });
         
         const data = await res.json();
-        const reply = data.reply || data.error || "ओहो! कुछ गड़बड़ हो गई।";
-        addMessage(reply, 'ai');
-        speakText(reply);
+        const reply = data.reply || data.error || "ओहो! कुछ गड़बड़ हो गई दीदी।";
+        speak(reply);
       } catch (err) {
         console.error(err);
-        const reply = `अरे! नेटवर्क एरर आया, पर मैं आपके पास ही हूँ ${user_name} दीदी!`;
-        addMessage(reply, 'ai');
-        speakText(reply);
-      } finally {
-        statusBadge.innerText = "श्री रेडी है (Ready)";
+        const reply = `Yay! आपने बहुत अच्छा पूछा, नेटवर्क अभी थोड़ा धीमा है पर मैं आपकी हर बात सुन रही हूँ ${user_name} दीदी! 🌸`;
+        speak(reply);
       }
     }
 
-    function sendTextMessage() {
-      const text = textInput.value.trim();
-      if (text) {
-        addMessage(text, 'user');
-        textInput.value = "";
-        processUserQuery(text);
-      }
-    }
-
-    function handleKeyPress(e) {
-      if (e.key === 'Enter') {
-        sendTextMessage();
-      }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
     }
   </script>
 </body>
