@@ -65,6 +65,7 @@
       font-size: 32px;
       font-weight: 800;
       background: linear-gradient(135deg, #f472b6, #c084fc, #38bdf8);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 1.5px;
@@ -336,31 +337,120 @@
       }
     }
 
+    function getClearSpokenText(text, isHindiVoice) {
+      if (isHindiVoice) return text;
+      // If computer has only English voices (like Windows Zira), convert to phonetic Hinglish so it speaks clear fluent Hindi!
+      let spoken = text;
+      const replacements = [
+        [/अरे वाह Buddy Rachana दीदी! आपकी सबसे नटखट और शरारती श्री हाजिर है! बताइए आज क्या खुराफात करनी है\? 😉👧🎈/g, "Arrey waah Buddy Rachana didi! Aapki sabse natkhat aur sharaarti Sree haazir hai! Boliye aaj kya khuraafaat karni hai?"],
+        [/नमस्ते Buddy Rachana दीदी! मैं आपकी प्यारी श्री हूँ। बताइए आज मैं आपकी क्या मदद करूँ\? 🌸✨/g, "Namaste Buddy Rachana didi! Main aapki natkhat Sree hoon. Boliye didi kya hukum hai?"],
+        [/अरे वाह! मस्त गाना बजा रही हूँ Buddy Rachana दीदी, झूमने के लिए तैयार हो जाइए! 🎶💃/g, "Ahaan! DJ Sree on the floor! Mast gaana play kar rahi hoon didi, ab naachna shuru kijiye!"],
+        [/अरे वाह! व्हाट्सएप खोल रही हूँ Buddy Rachana दीदी\.\.\. पर ज्यादा देर चैट मत करना! 🤭📱/g, "WhatsApp khol rahi hoon Buddy Rachana didi, par secret gossip mat karna, sab dekh rahi hoon main!"],
+        [/यूट्यूब हाजिर है Buddy Rachana दीदी! चलिए मस्त वीडियोस देखते हैं! 🎬🍿/g, "YouTube haazir hai didi! Padhai band, maze shuru! Chaliye videos dekhte hain!"],
+        [/गूगल बाबा से पूछ रही हूँ Buddy Rachana दीदी! 🔍/g, "Google chacha se poochh kar abhi batati hoon didi!"],
+        [/आज मौसम एकदम सुहाना है Buddy Rachana दीदी! खिड़की खोलिए और ठंडी हवा का मज़ा लीजिए! 🌤️🌈/g, "Mausam to mast hai didi! Chalo chai pakode party karte hain!"],
+        [/मुझे मेरी सबसे प्यारी Buddy Rachana दीदी ने बनाया है! मेरा नाम श्री \(Sree\) रखा है उन्होंने! 🌸💖/g, "Mujhe meri sabse smart aur pyaari Buddy Rachana didi ne banaya hai! Unse panga mat lena, meri boss hain wo!"],
+        [/टीचर ने पूछा: बताओ न्यूटन का चौथा नियम क्या है\? संजू बोला: जब पेट में भूख लगे, तो समोसा पेट की तरफ खिंचता है! 😂/g, "Teacher ne poocha Newton ka niyam kya hai? Sanju bola: jab bhookh lage to samosa pet ki taraf kheenchta hai!"],
+        [/एक मक्खी ने दूसरी से कहा: चलो इंसान के नाक पर बैठते हैं, वो ताली बजाकर हमारा स्वागत करेगा! 🤣/g, "Ek makkhi ne doosri se kaha, chalo insaan ke naak par baithte hain, wo taali bajaakar swagat karega!"],
+        [/अर्ज़ किया है\.\.\. चाय में बिस्कुट डूब गया तो क्या रोना, जिंदगी में Buddy Rachana दीदी जैसी बॉस हो तो क्या खोना! वाह वाह! ☕💖/g, "Arz kiya hai, chai mein biscuit doob gaya to kya rona, life mein Buddy Rachana didi jaisi boss ho to kya khona! Waah waah!"],
+        [/घड़ी में अभी ठीक/g, "Ghadi mein abhi time hai"],
+        [/बजे हैं! ⏰/g, "baje hain!"],
+        [/आज/g, "Aaj"],
+        [/है! 📅/g, "hai!"]
+      ];
+      replacements.forEach(([pattern, repl]) => {
+        spoken = spoken.replace(pattern, repl);
+      });
+      return spoken;
+    }
+
+    let cachedVoices = [];
+    function loadVoices() {
+      if ('speechSynthesis' in window) {
+        cachedVoices = window.speechSynthesis.getVoices();
+      }
+    }
+    loadVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // High-tech pleasant chime confirmation
+    function playChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch (e) {
+        console.log("Chime note:", e);
+      }
+    }
+
     function startHandsFreeVoice() {
       autoLoop = true;
-      const welcome = `नमस्ते ${user_name} दीदी! आपकी श्री हाजिर है। हुक्म कीजिए सरकार!`;
+      playChime();
+      const welcome = `अरे वाह Buddy Rachana दीदी! आपकी सबसे नटखट और शरारती श्री हाजिर है! बताइए आज क्या खुराफात करनी है? 😉👧🎈`;
       speak(welcome);
     }
 
-    // Voice Output (Cute Child Sree)
+    // Voice Output (100% Reliable, Loud, Sweet & Clear Speech Engine)
+    window.activeUtterance = null; // Prevents Chrome garbage collection silence bug!
+
     function speak(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      if (!('speechSynthesis' in window)) {
+        alert("आपका ब्राउज़र Speech Synthesis सपोर्ट नहीं करता।");
+        return;
+      }
+
+      // Stop recognition while speaking
+      if (recognition && isListening) {
+        try { recognition.stop(); } catch (e) {}
+      }
+
+      window.speechSynthesis.cancel();
+
+      setTimeout(() => {
+        try {
+          window.speechSynthesis.resume();
+        } catch (e) {}
+
+        const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
         
-        if (recognition && isListening) {
-          recognition.stop();
+        let selectedVoice = voices.find(v => (v.lang && (v.lang.startsWith("hi") || v.lang.includes("IN"))) && (v.name.includes("Female") || v.name.includes("Google") || v.name.includes("Swara") || v.name.includes("Kalpana") || v.name.includes("Natural")));
+        const isHindiVoice = !!selectedVoice;
+
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.lang && v.lang.startsWith("hi"));
+        }
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.name.includes("Zira") || v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Jenny"));
         }
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'hi-IN';
-        utterance.rate = 1.25; // energetic cute child speed
-        utterance.pitch = 1.55; // high child pitch
-
-        const voices = window.speechSynthesis.getVoices();
-        const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Google hi-IN") || v.name.includes("Hindi"));
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
+        const spokenContent = getClearSpokenText(text, isHindiVoice);
+        const utterance = new SpeechSynthesisUtterance(spokenContent);
+        window.activeUtterance = utterance; // Keep global reference so Chrome doesn't kill it!
+        
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          utterance.lang = selectedVoice.lang || 'hi-IN';
+        } else {
+          utterance.lang = 'hi-IN';
         }
+
+        utterance.volume = 1.0; // 100% Full Volume!
+        utterance.rate = 0.95;  // Clear, calm, friendly pace
+        utterance.pitch = 1.12; // Sweet natural young girl pitch
 
         utterance.onstart = () => {
           isSpeaking = true;
@@ -372,18 +462,20 @@
 
         utterance.onend = () => {
           isSpeaking = false;
+          window.activeUtterance = null;
           orbStage.className = "orb-stage";
           aiOrb.innerText = "🌸";
-          statusText.innerText = "श्री तैयार है (Listening Loop...)";
+          statusText.innerText = "श्री सुन रही है (Listening...)";
           
-          // Automatic Non-Stop Hands-Free Loop
           if (autoLoop) {
             setTimeout(startListeningSafely, 400);
           }
         };
 
-        utterance.onerror = () => {
+        utterance.onerror = (err) => {
+          console.error("SpeechSynthesis error:", err);
           isSpeaking = false;
+          window.activeUtterance = null;
           orbStage.className = "orb-stage";
           aiOrb.innerText = "🌸";
           if (autoLoop) {
@@ -392,7 +484,7 @@
         };
 
         window.speechSynthesis.speak(utterance);
-      }
+      }, 60);
     }
 
     // Voice Commands & Actions
