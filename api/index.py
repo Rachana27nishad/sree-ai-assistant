@@ -19,7 +19,6 @@ class handler(BaseHTTPRequestHandler):
         response_body = json.dumps({
             "status": "online",
             "assistant": "Sree AI",
-            "owner": "Buddy Rachana",
             "message": "Sree AI Backend is running smoothly!"
         })
         self.send_response(200)
@@ -38,7 +37,6 @@ class handler(BaseHTTPRequestHandler):
             data = {}
             
         prompt = data.get('prompt', '')
-        user_name = data.get('user_name', 'Buddy Rachana')
         history = data.get('history', [])
         
         api_key = os.environ.get('GEMINI_API_KEY', '')
@@ -55,12 +53,12 @@ class handler(BaseHTTPRequestHandler):
             return
 
         system_prompt = (
-            f"You are Sree (श्री), a super smart, witty, sweet, and highly intelligent AI personal voice assistant.\n"
-            f"CORE BEHAVIORS:\n"
-            f"1. CREATOR & MASTER: You were created by and exclusively serve '{user_name}'. Address her affectionately as '{user_name} Didi' or '{user_name}'. You adore her, respect her, and enjoy helping her.\n"
-            f"2. CONTINUOUS CONVERSATION: The user is having a continuous, hands-free voice dialogue with you. Keep answers conversational, friendly, and natural for text-to-speech.\n"
-            f"3. LENGTH & STYLE: Keep answers crisp (1-3 sentences maximum) unless the user asks for a story, poem, or detailed explanation. Avoid bullet points, symbols, markdown stars (*), or complex formatting that sounds awkward when spoken aloud.\n"
-            f"4. BILINGUAL: Speak fluently in conversational Hindi/Hinglish (natural mix of Hindi and English). Keep the tone warm, witty, respectful, and sharp.\n"
+            "You are Sree, an ultra-smart, friendly, and highly intelligent AI personal voice assistant.\n"
+            "CORE BEHAVIORS:\n"
+            "1. LANGUAGE: Always respond in natural, fluent, spoken ENGLISH. Do not use Hindi.\n"
+            "2. USER NAME RULE: The user is 'Buddy'. Do NOT repeat the name 'Buddy' in every sentence. NEVER say 'Buddy Rachana Didi'. Answer directly, naturally, and concisely without repeatedly addressing the user.\n"
+            "3. CONTINUOUS VOICE CONVERSATION: You are speaking aloud over voice. Keep answers crisp (1-3 sentences maximum) unless the user specifically asks for a detailed explanation. Never use markdown, asterisks (*), hashtags, emojis, or bullet points—only smooth spoken English.\n"
+            "4. TONE: Warm, intelligent, confident, witty, and helpful.\n"
         )
 
         history_context = ""
@@ -83,6 +81,8 @@ class handler(BaseHTTPRequestHandler):
                 contents=full_prompt,
             )
             reply_text = ai_response.text.strip()
+            # Clean any asterisks or formatting from spoken response
+            reply_text = reply_text.replace('*', '').replace('#', '').strip()
         except Exception as e:
             reply_text = f"Gemini API Error: {str(e)}"
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sree AI (श्री) - Continuous Voice Assistant for Buddy Rachana</title>
+  <title>Sree AI - Continuous Voice Assistant for Buddy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -13,7 +13,6 @@
       --primary-glow: rgba(6, 182, 212, 0.6);
       --accent: #d946ef;
       --accent-glow: rgba(217, 70, 239, 0.6);
-      --amber: #f59e0b;
       --green: #10b981;
       --bg: #030712;
       --text: #f8fafc;
@@ -407,7 +406,7 @@
     }
 
     .bottom-hint strong {
-      color: #f472b6;
+      color: #38bdf8;
     }
   </style>
 </head>
@@ -421,9 +420,9 @@
   <div class="top-hud">
     <div class="hud-brand">
       <span class="pulse-dot"></span>
-      <span class="hud-title">SREE AI (श्री)</span>
+      <span class="hud-title">SREE AI</span>
     </div>
-    <div class="hud-mode" id="modeBadge">HANDS-FREE DIALOG</div>
+    <div class="hud-mode" id="modeBadge">CONTINUOUS VOICE</div>
   </div>
 
   <!-- Interactive Center Stage: 3D Holographic AI Core -->
@@ -455,10 +454,10 @@
   <div class="subtitles-area">
     <div class="status-badge" id="statusBadge">
       <span id="statusIcon">●</span>
-      <span id="statusLabel">टैप करें और बोलना शुरू करें</span>
+      <span id="statusLabel">Tap to start conversation</span>
     </div>
     <div class="user-spoken-query" id="userQueryText"></div>
-    <div class="ai-live-response" id="aiResponseText">नमस्ते Buddy Rachana दीदी! शुरू करने के लिए कहीं भी टैप करें! 🌸</div>
+    <div class="ai-live-response" id="aiResponseText">Hello Buddy! Tap anywhere to start speaking.</div>
   </div>
 
   <!-- Bottom Voice Action Bar -->
@@ -468,12 +467,11 @@
       <span id="actionText">Start Voice Conversation</span>
     </button>
     <div class="bottom-hint">
-      एक बार क्लिक करें—जब तक आपकी बातें खत्म न हों, <strong>Shree बिना रुके जवाब देती रहेगी!</strong>
+      Click once to begin. <strong>Sree will keep answering continuously until you are finished!</strong>
     </div>
   </div>
 
   <script>
-    const user_name = "Buddy Rachana";
     const stageContainer = document.getElementById("stageContainer");
     const aiOrb = document.getElementById("aiOrb");
     const statusBadge = document.getElementById("statusBadge");
@@ -526,13 +524,13 @@
       }
     }
 
-    // Initialize Web Speech Recognition
+    // Initialize Web Speech Recognition in English
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
-      recognition.continuous = false; // We manage continuous flow via auto-looping for maximum browser reliability
+      recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'hi-IN';
+      recognition.lang = 'en-US'; // 100% English Voice Recognition
 
       recognition.onstart = () => {
         isListening = true;
@@ -541,7 +539,7 @@
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        userQueryText.innerText = `🗣️ आपने कहा: "${transcript}"`;
+        userQueryText.innerText = `You: "${transcript}"`;
         handleVoiceQuery(transcript);
       };
 
@@ -552,11 +550,11 @@
         if (event.error === 'not-allowed') {
           isSessionActive = false;
           setVisualState("idle");
-          aiResponseText.innerText = "कृपया ब्राउज़र में माइक्रोफ़ोन की अनुमति (Allow Microphone) दें!";
+          aiResponseText.innerText = "Please allow microphone access in your browser to speak!";
           return;
         }
 
-        // For silence (no-speech) or network timeouts: gracefully re-listen if session is active!
+        // For silence or timeouts: gracefully continue listening if session is active!
         if (isSessionActive && !isSpeaking) {
           setTimeout(resumeListeningSafe, 400);
         }
@@ -564,7 +562,7 @@
 
       recognition.onend = () => {
         isListening = false;
-        // If the user was quiet and recognition stopped, but the session is active and AI is not talking -> immediately restart listening!
+        // Keep continuous loop active while session is active
         if (isSessionActive && !isSpeaking) {
           setTimeout(resumeListeningSafe, 300);
         }
@@ -574,7 +572,7 @@
     // Toggle Continuous Voice Session
     function toggleContinuousVoiceSession() {
       if (!recognition) {
-        alert("आपका ब्राउज़र वॉइस रिकॉग्निशन सपोर्ट नहीं करता। कृपया Google Chrome का उपयोग करें।");
+        alert("Your browser does not support Speech Recognition. Please use Google Chrome.");
         return;
       }
 
@@ -586,13 +584,13 @@
         isListening = false;
         isSpeaking = false;
         setVisualState("idle");
-        aiResponseText.innerText = "बातचीत रोक दी गई है। दोबारा शुरू करने के लिए टैप करें! 🌸";
+        aiResponseText.innerText = "Conversation paused. Tap anytime to resume!";
         playChime(440, 220);
       } else {
-        // Start continuous session
+        // Start continuous session (Only says 'Buddy' once at startup!)
         isSessionActive = true;
         playChime(587, 880);
-        const greeting = `अरे वाह ${user_name} दीदी! मैं पूरी तरह एक्टिव हूँ, बोलिए क्या पूछना है? 😉🌸`;
+        const greeting = "Hello Buddy! I'm listening, how can I help you today?";
         speak(greeting);
       }
     }
@@ -602,7 +600,7 @@
       try {
         recognition.start();
       } catch (e) {
-        // Recognition already starting, ignore
+        // Ignored if already running
       }
     }
 
@@ -614,7 +612,7 @@
         stageContainer.classList.add("listening");
         aiOrb.innerText = "👂";
         statusIcon.innerText = "●";
-        statusLabel.innerText = "Listening... बोलिए Buddy Rachana दीदी";
+        statusLabel.innerText = "Listening... Speak now";
         mainActionButton.classList.add("active");
         actionIcon.innerText = "⏹️";
         actionText.innerText = "Listening... (Tap to Pause)";
@@ -622,50 +620,28 @@
         stageContainer.classList.add("thinking");
         aiOrb.innerText = "🧠";
         statusIcon.innerText = "⚡";
-        statusLabel.innerText = "Thinking... सोच रही हूँ";
+        statusLabel.innerText = "Thinking...";
       } else if (state === "speaking") {
         stageContainer.classList.add("speaking");
         aiOrb.innerText = "🗣️";
         statusIcon.innerText = "🔊";
-        statusLabel.innerText = "Speaking... बोल रही हूँ";
+        statusLabel.innerText = "Speaking...";
       } else {
         aiOrb.innerText = "✨";
         statusIcon.innerText = "●";
-        statusLabel.innerText = "टैप करें और बोलना शुरू करें";
+        statusLabel.innerText = "Tap to start conversation";
         mainActionButton.classList.remove("active");
         actionIcon.innerText = "🎙️";
         actionText.innerText = "Start Voice Conversation";
       }
     }
 
-    // Convert Hindi to Phonetic Hinglish if only English Voices Exist (e.g. Windows Zira)
-    function getClearSpokenText(text, isHindiVoice) {
-      if (isHindiVoice) return text;
-      let spoken = text;
-      const dict = [
-        [/नमस्ते/g, "Namaste"],
-        [/दीदी/g, "didi"],
-        [/अरे वाह/g, "Arrey waah"],
-        [/मैं सुन रही हूँ/g, "main sun rahi hoon"],
-        [/बोलिए/g, "boliye"],
-        [/आज मौसम एकदम सुहाना है/g, "Aaj mausam ekdum suhaana hai"],
-        [/यूट्यूब हाजिर है/g, "YouTube haazir hai"],
-        [/व्हाट्सएप खोल रही हूँ/g, "WhatsApp khol rahi hoon"],
-        [/घड़ी में अभी/g, "Ghadi mein abhi"],
-        [/बजे हैं/g, "baje hain"],
-        [/तारीख/g, "taareekh"],
-        [/अलविदा/g, "Alvida"]
-      ];
-      dict.forEach(([pat, rep]) => { spoken = spoken.replace(pat, rep); });
-      return spoken;
-    }
-
-    // Voice Synthesis Engine (Zero Garbage-Collection Silence Bug)
+    // Voice Synthesis Engine in Natural English (Zero Garbage-Collection Silence Bug)
     window.activeUtterance = null;
 
     function speak(text) {
       if (!('speechSynthesis' in window)) {
-        alert("आपका ब्राउज़र स्पीच सिंथेसिस सपोर्ट नहीं करता।");
+        alert("Your browser does not support speech synthesis.");
         return;
       }
 
@@ -680,26 +656,25 @@
         try { window.speechSynthesis.resume(); } catch (e) {}
 
         const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
-        let selectedVoice = voices.find(v => (v.lang && (v.lang.startsWith("hi") || v.lang.includes("IN"))) && (v.name.includes("Female") || v.name.includes("Google") || v.name.includes("Swara") || v.name.includes("Kalpana")));
-        const isHindiVoice = !!selectedVoice;
+        
+        // Find pleasant natural English female voice
+        let selectedVoice = voices.find(v => v.lang && v.lang.startsWith("en") && (v.name.includes("Zira") || v.name.includes("Samantha") || v.name.includes("Female") || v.name.includes("Google US English") || v.name.includes("Jenny") || v.name.includes("Victoria")));
+        if (!selectedVoice) selectedVoice = voices.find(v => v.lang && v.lang.startsWith("en"));
 
-        if (!selectedVoice) selectedVoice = voices.find(v => v.lang && v.lang.startsWith("hi"));
-        if (!selectedVoice) selectedVoice = voices.find(v => v.name.includes("Zira") || v.name.includes("Female") || v.name.includes("Samantha"));
-
-        const cleanSpeech = getClearSpokenText(text, isHindiVoice);
-        const utterance = new SpeechSynthesisUtterance(cleanSpeech);
+        const cleanText = text.replace(/[*_#`~\[\]]/g, '').trim();
+        const utterance = new SpeechSynthesisUtterance(cleanText);
         window.activeUtterance = utterance;
 
         if (selectedVoice) {
           utterance.voice = selectedVoice;
-          utterance.lang = selectedVoice.lang || 'hi-IN';
+          utterance.lang = selectedVoice.lang || 'en-US';
         } else {
-          utterance.lang = 'hi-IN';
+          utterance.lang = 'en-US';
         }
 
         utterance.volume = 1.0;
-        utterance.rate = 0.98;
-        utterance.pitch = 1.14;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.06;
 
         utterance.onstart = () => {
           isSpeaking = true;
@@ -707,7 +682,7 @@
           aiResponseText.innerText = text;
         };
 
-        // When Shree finishes answering -> IMMEDIATELY LISTEN FOR NEXT QUESTION!
+        // When Sree finishes speaking -> IMMEDIATELY LISTEN FOR NEXT QUESTION!
         utterance.onend = () => {
           isSpeaking = false;
           window.activeUtterance = null;
@@ -733,57 +708,54 @@
       }, 50);
     }
 
-    // Voice Command & AI Intelligence Router
+    // Voice Command & AI Intelligence Router (100% English, Direct & Natural)
     async function handleVoiceQuery(query) {
       const q = query.toLowerCase().trim();
 
-      // Stop / Exit Conversation Session
-      if (q.includes("stop") || q.includes("bye") || q.includes("बाय") || q.includes("अलविदा") || q.includes("बस करो") || q.includes("रुको") || q.includes("बंद करो")) {
+      // Exit / Stop
+      if (q === "stop" || q === "bye" || q === "goodbye" || q === "exit" || q === "quit" || q.includes("pause conversation") || q.includes("stop listening")) {
         isSessionActive = false;
-        speak(`अलविदा ${user_name} दीदी! जब भी ज़रूरत हो, बस एक आवाज़ दीजिएगा! टेक केयर! 👋🌸`);
+        speak("Goodbye! Have a wonderful day ahead!");
         return;
       }
 
-      // Play Song / Music on YouTube
-      if (q.includes("गाना") || q.includes("song") || q.includes("music") || q.includes("प्ले")) {
-        const songName = query.replace(/(गाना|बजाओ|चलाओ|play|song|music|on youtube)/gi, '').trim() || "trending songs";
-        const reply = `अरे वाह! मस्त गाना बजा रही हूँ ${user_name} दीदी, झूमने के लिए तैयार हो जाइए! 🎶💃`;
+      // Play Music / Song on YouTube
+      if (q.startsWith("play") || q.includes("play song") || q.includes("play music")) {
+        const songName = query.replace(/(play|song|music|on youtube)/gi, '').trim() || "trending songs";
+        const reply = `Playing ${songName} on YouTube!`;
         speak(reply);
         window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(songName)}`, "_blank");
         return;
       }
 
       // WhatsApp
-      if (q.includes("whatsapp") || q.includes("व्हाट्सएप")) {
-        const reply = `अरे वाह! व्हाट्सएप खोल रही हूँ ${user_name} दीदी... पर ज्यादा देर चैट मत करना! 🤭📱`;
-        speak(reply);
+      if (q.includes("whatsapp")) {
+        speak("Opening WhatsApp Web for you.");
         window.open("https://web.whatsapp.com", "_blank");
         return;
       }
 
       // YouTube
-      if (q === "youtube" || q.includes("open youtube") || q.includes("यूट्यूब खोलो")) {
-        const reply = `यूट्यूब हाजिर है ${user_name} दीदी! चलिए मस्त वीडियोस देखते हैं! 🎬🍿`;
-        speak(reply);
+      if (q === "youtube" || q.includes("open youtube")) {
+        speak("Opening YouTube.");
         window.open("https://www.youtube.com", "_blank");
         return;
       }
 
       // Google Search
-      if (q.includes("search") || q.includes("सर्च") || q.includes("गूगल")) {
-        const term = query.replace(/(search|सर्च|गूगल|पर खोजो|ढूंढो)/gi, '').trim() || "Google";
-        const reply = `गूगल बाबा से पूछ रही हूँ ${user_name} दीदी! 🔍`;
-        speak(reply);
+      if (q.startsWith("search") || q.includes("search google for")) {
+        const term = query.replace(/(search for|search google for|search google|search)/gi, '').trim() || "Google";
+        speak(`Searching Google for ${term}.`);
         window.open(`https://www.google.com/search?q=${encodeURIComponent(term)}`, "_blank");
         return;
       }
 
-      // Live Weather
-      if (q.includes("मौसम") || q.includes("weather") || q.includes("तापमान")) {
+      // Weather
+      if (q.includes("weather") || q.includes("temperature")) {
         setVisualState("thinking");
         try {
-          const cityMatch = query.match(/(?:in|of|का|में)\s+([a-zA-Z\u0900-\u097F]+)/i);
-          const city = cityMatch ? cityMatch[1] : "Delhi";
+          const cityMatch = query.match(/(?:in|for|of)\s+([a-zA-Z\s]+)/i);
+          const city = cityMatch ? cityMatch[1].trim() : "Delhi";
           const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
           const geoData = await geoRes.json();
           if (geoData.results && geoData.results.length > 0) {
@@ -791,59 +763,53 @@
             const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
             const wData = await wRes.json();
             const temp = wData.current_weather.temperature;
-            const reply = `${name} (${country}) में तापमान अभी ${temp}°C है और मौसम एकदम सुहाना है ${user_name} दीदी! 🌤️`;
+            const wind = wData.current_weather.windspeed;
+            const reply = `The current temperature in ${name}, ${country} is ${temp} degrees Celsius with a wind speed of ${wind} kilometers per hour.`;
             speak(reply);
             return;
           }
         } catch (e) {
           console.log("Weather error:", e);
         }
-        speak(`मौसम एकदम सुहाना है ${user_name} दीदी! खिड़की खोलिए और ठंडी हवा का मज़ा लीजिए! 🌤️`);
+        speak("The weather is pleasant and clear today!");
         return;
       }
 
       // Jokes
-      if (q.includes("चुटकुला") || q.includes("joke") || q.includes("हंसाओ") || q.includes("मजाक")) {
+      if (q.includes("joke") || q.includes("tell me something funny")) {
         const jokes = [
-          "टीचर ने पूछा: बताओ न्यूटन का चौथा नियम क्या है? संजू बोला: जब पेट में भूख लगे, तो समोसा पेट की तरफ खिंचता है! 😂",
-          "एक मक्खी ने दूसरी से कहा: चलो इंसान के नाक पर बैठते हैं, वो ताली बजाकर हमारा स्वागत करेगा! 🤣",
-          "पप्पू डॉक्टर से बोला: मुझे नींद में चलने की बीमारी है! डॉक्टर: तो रात को ताला लगा लिया करो! पप्पू: फिर बाहर घूमने कैसे जाऊँगा? 🤪"
+          "Why do programmers prefer dark mode? Because light attracts bugs!",
+          "Why was the computer cold? It forgot to close its Windows!",
+          "Why did the smartphone need glasses? Because it lost its contacts!"
         ];
         const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
         speak(randomJoke);
         return;
       }
 
-      // Shayari
-      if (q.includes("शायरी") || q.includes("shayari")) {
-        const reply = `अर्ज़ किया है... चाय में बिस्कुट डूब गया तो क्या रोना, जिंदगी में Buddy Rachana दीदी जैसी बॉस हो तो क्या खोना! वाह वाह! ☕💖`;
-        speak(reply);
+      // Current Time
+      if (q.includes("time") || q.includes("what time")) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        speak(`It is currently ${timeStr}.`);
         return;
       }
 
-      // Time
-      if (q.includes("time") || q.includes("समय") || q.includes("टाइम")) {
+      // Current Date
+      if (q.includes("date") || q.includes("what is today")) {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
-        speak(`${user_name} दीदी, घड़ी में अभी ठीक ${timeStr} बजे हैं! ⏰`);
-        return;
-      }
-
-      // Date
-      if (q.includes("date") || q.includes("तारीख") || q.includes("दिन")) {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('hi-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        speak(`${user_name} दीदी, आज ${dateStr} है! 📅`);
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        speak(`Today is ${dateStr}.`);
         return;
       }
 
       // Creator
-      if (q.includes("who made you") || q.includes("tumhe kisne banaya") || q.includes("क्रिएटर") || q.includes("किसने बनाया")) {
-        speak(`मुझे मेरी सबसे प्यारी और सुपर इंटेलिजेंट Buddy Rachana दीदी ने बनाया है! मेरा नाम श्री (Sree) रखा है उन्होंने! 🌸💖`);
+      if (q.includes("who made you") || q.includes("who created you")) {
+        speak("I was created by Buddy to be your smart personal voice assistant!");
         return;
       }
 
-      // General Questions -> Gemini AI (With Multi-Turn Context Memory)
+      // General Questions -> Gemini AI (Direct English & No Repeated Names)
       setVisualState("thinking");
       try {
         const res = await fetch("/api/chat", {
@@ -851,13 +817,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt: query,
-            user_name: user_name,
             history: conversationHistory
           })
         });
 
         const data = await res.json();
-        const reply = data.reply || data.error || "ओहो! कुछ तकनीकी गड़बड़ हो गई दीदी।";
+        const reply = data.reply || data.error || "Sorry, I encountered a temporary connection issue.";
         
         conversationHistory.push({ role: "user", text: query });
         conversationHistory.push({ role: "assistant", text: reply });
@@ -866,7 +831,7 @@
         speak(reply);
       } catch (err) {
         console.error(err);
-        speak(`नेटवर्क थोड़ा धीमा है दीदी, पर मैं हमेशा आपके पास हूँ! अगला सवाल पूछिए! 🌸`);
+        speak("I had trouble reaching the network. Please ask your next question!");
       }
     }
   </script>
