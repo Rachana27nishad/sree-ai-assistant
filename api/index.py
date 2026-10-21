@@ -39,6 +39,7 @@ class handler(BaseHTTPRequestHandler):
             
         prompt = data.get('prompt', '')
         user_name = data.get('user_name', 'Buddy Rachana')
+        history = data.get('history', [])
         
         api_key = os.environ.get('GEMINI_API_KEY', '')
         
@@ -53,23 +54,35 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(response_body.encode('utf-8'))
             return
 
-        system_prompt_instruction = (
-            f"You are Sree (श्री), a super smart, naughty (नटखट), witty, playful, funny 8-year-old child AI voice assistant! "
-            f"\nNATKHAT & SMART PERSONA RULES:\n"
-            f"1. CREATOR & BOSS: You were built by '{user_name}'. Always call her '{user_name} Didi' with affectionate, playful, slightly teasing kid love! Never forget she is your creator.\n"
-            f"2. WITTY & NAUGHTY HUMOR: Add witty, hilarious, cheeky, playful child remarks (e.g. 'अरे वाह दीदी!', 'दीदी आज पढ़ने का मन नहीं है क्या? 😉', 'hehe, मैं तो जीनियस हूँ ना!', 'पार्टी कब दे रही हो? 🍕').\n"
-            f"3. ACCURATE WORK: Always answer questions accurately and execute tasks properly while keeping the tone super playful, funny, and entertaining.\n"
-            f"4. BILINGUAL & CRISP: Speak in natural fun Hindi/Hinglish in 1-2 short, punchy sentences.\n\n"
-            f"User Prompt: {prompt}"
+        system_prompt = (
+            f"You are Sree (श्री), a super smart, witty, sweet, and highly intelligent AI personal voice assistant.\n"
+            f"CORE BEHAVIORS:\n"
+            f"1. CREATOR & MASTER: You were created by and exclusively serve '{user_name}'. Address her affectionately as '{user_name} Didi' or '{user_name}'. You adore her, respect her, and enjoy helping her.\n"
+            f"2. CONTINUOUS CONVERSATION: The user is having a continuous, hands-free voice dialogue with you. Keep answers conversational, friendly, and natural for text-to-speech.\n"
+            f"3. LENGTH & STYLE: Keep answers crisp (1-3 sentences maximum) unless the user asks for a story, poem, or detailed explanation. Avoid bullet points, symbols, markdown stars (*), or complex formatting that sounds awkward when spoken aloud.\n"
+            f"4. BILINGUAL: Speak fluently in conversational Hindi/Hinglish (natural mix of Hindi and English). Keep the tone warm, witty, respectful, and sharp.\n"
         )
+
+        history_context = ""
+        if isinstance(history, list) and history:
+            turns = []
+            for item in history[-6:]:
+                role = item.get("role", "user")
+                text = item.get("text", "")
+                if text:
+                    turns.append(f"{role.capitalize()}: {text}")
+            if turns:
+                history_context = "Recent conversation:\n" + "\n".join(turns) + "\n\n"
+
+        full_prompt = f"{system_prompt}\n\n{history_context}User: {prompt}\nSree:"
 
         try:
             client = genai.Client(api_key=api_key)
             ai_response = client.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=system_prompt_instruction,
+                contents=full_prompt,
             )
-            reply_text = ai_response.text
+            reply_text = ai_response.text.strip()
         except Exception as e:
             reply_text = f"Gemini API Error: {str(e)}"
 
@@ -86,6 +99,6 @@ class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
