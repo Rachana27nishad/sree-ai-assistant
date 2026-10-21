@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sree AI - Continuous Voice Assistant for Buddy</title>
+  <title>Sree AI - Bilingual Voice Assistant (English & Hindi) with Indian Voice</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -126,12 +126,15 @@
     .hud-mode {
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
-      color: #a78bfa;
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: #38bdf8;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
       padding: 4px 10px;
       border-radius: 20px;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     /* Main Stage: Holographic Interactive Voice Core */
@@ -420,9 +423,9 @@
   <div class="top-hud">
     <div class="hud-brand">
       <span class="pulse-dot"></span>
-      <span class="hud-title">SREE AI</span>
+      <span class="hud-title">SREE AI (श्री)</span>
     </div>
-    <div class="hud-mode" id="modeBadge">CONTINUOUS VOICE</div>
+    <div class="hud-mode" id="modeBadge">🇮🇳 HINDI + ENGLISH (INDIAN VOICE)</div>
   </div>
 
   <!-- Interactive Center Stage: 3D Holographic AI Core -->
@@ -454,10 +457,10 @@
   <div class="subtitles-area">
     <div class="status-badge" id="statusBadge">
       <span id="statusIcon">●</span>
-      <span id="statusLabel">Tap to start conversation</span>
+      <span id="statusLabel">टैप करें और बोलना शुरू करें (Tap to Speak)</span>
     </div>
     <div class="user-spoken-query" id="userQueryText"></div>
-    <div class="ai-live-response" id="aiResponseText">Hello Buddy! Tap anywhere to start speaking.</div>
+    <div class="ai-live-response" id="aiResponseText">Hello Buddy! Tap anywhere to talk in Hindi or English! 🌸</div>
   </div>
 
   <!-- Bottom Voice Action Bar -->
@@ -467,7 +470,7 @@
       <span id="actionText">Start Voice Conversation</span>
     </button>
     <div class="bottom-hint">
-      Click once to begin. <strong>Sree will keep answering continuously until you are finished!</strong>
+      एक बार क्लिक करें—<strong>हिंदी या इंग्लिश में लगातार बात करते रहें!</strong>
     </div>
   </div>
 
@@ -483,7 +486,7 @@
     const actionIcon = document.getElementById("actionIcon");
     const actionText = document.getElementById("actionText");
 
-    // Continuous Hands-Free Dialogue Controller
+    // Continuous Dialogue Controller
     let isSessionActive = false;
     let isListening = false;
     let isSpeaking = false;
@@ -524,13 +527,21 @@
       }
     }
 
-    // Initialize Web Speech Recognition in English
+    // Detect if text is mostly Hindi
+    function isHindi(text) {
+      // Check Devanagari script range or common Hindi phonetic words
+      const devanagari = /[\u0900-\u097F]/;
+      return devanagari.test(text);
+    }
+
+    // Initialize Web Speech Recognition with Dual Support
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-US'; // 100% English Voice Recognition
+      // 'hi-IN' in Google Speech accurately transcribes both Hindi and English speech
+      recognition.lang = 'hi-IN';
 
       recognition.onstart = () => {
         isListening = true;
@@ -539,7 +550,7 @@
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        userQueryText.innerText = `You: "${transcript}"`;
+        userQueryText.innerText = `🗣️ "${transcript}"`;
         handleVoiceQuery(transcript);
       };
 
@@ -550,7 +561,7 @@
         if (event.error === 'not-allowed') {
           isSessionActive = false;
           setVisualState("idle");
-          aiResponseText.innerText = "Please allow microphone access in your browser to speak!";
+          aiResponseText.innerText = "Please allow microphone access in your browser!";
           return;
         }
 
@@ -584,13 +595,13 @@
         isListening = false;
         isSpeaking = false;
         setVisualState("idle");
-        aiResponseText.innerText = "Conversation paused. Tap anytime to resume!";
+        aiResponseText.innerText = "बातचीत रोक दी गई है। दोबारा शुरू करने के लिए टैप करें! 🌸";
         playChime(440, 220);
       } else {
         // Start continuous session (Only says 'Buddy' once at startup!)
         isSessionActive = true;
         playChime(587, 880);
-        const greeting = "Hello Buddy! I'm listening, how can I help you today?";
+        const greeting = "Hello Buddy! Sree is listening. You can speak in Hindi or English!";
         speak(greeting);
       }
     }
@@ -612,7 +623,7 @@
         stageContainer.classList.add("listening");
         aiOrb.innerText = "👂";
         statusIcon.innerText = "●";
-        statusLabel.innerText = "Listening... Speak now";
+        statusLabel.innerText = "Listening... बोलिए (Speak in Hindi or English)";
         mainActionButton.classList.add("active");
         actionIcon.innerText = "⏹️";
         actionText.innerText = "Listening... (Tap to Pause)";
@@ -620,23 +631,43 @@
         stageContainer.classList.add("thinking");
         aiOrb.innerText = "🧠";
         statusIcon.innerText = "⚡";
-        statusLabel.innerText = "Thinking...";
+        statusLabel.innerText = "Thinking... सोच रही हूँ";
       } else if (state === "speaking") {
         stageContainer.classList.add("speaking");
         aiOrb.innerText = "🗣️";
         statusIcon.innerText = "🔊";
-        statusLabel.innerText = "Speaking...";
+        statusLabel.innerText = "Speaking... बोल रही हूँ";
       } else {
         aiOrb.innerText = "✨";
         statusIcon.innerText = "●";
-        statusLabel.innerText = "Tap to start conversation";
+        statusLabel.innerText = "टैप करें और बोलना शुरू करें (Tap to Speak)";
         mainActionButton.classList.remove("active");
         actionIcon.innerText = "🎙️";
         actionText.innerText = "Start Voice Conversation";
       }
     }
 
-    // Voice Synthesis Engine in Natural English (Zero Garbage-Collection Silence Bug)
+    // Authentic Indian Voice Selection
+    function getIndianVoice(isTextHindi) {
+      const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
+      
+      if (isTextHindi) {
+        // Find best Hindi Indian Voice
+        let v = voices.find(v => (v.lang === 'hi-IN' || v.lang.startsWith('hi')) && (v.name.includes("Google") || v.name.includes("Kalpana") || v.name.includes("Swara") || v.name.includes("Natural")));
+        if (!v) v = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi'));
+        if (v) return v;
+      }
+
+      // Find best Indian English Voice (e.g. Google English India, Heera, Neerja, Veena)
+      let indianVoice = voices.find(v => (v.lang === 'en-IN' || v.lang.includes('IN')) && (v.name.includes("Heera") || v.name.includes("Neerja") || v.name.includes("Veena") || v.name.includes("Google") || v.name.includes("India")));
+      if (!indianVoice) indianVoice = voices.find(v => v.lang === 'en-IN' || v.lang.includes('IN'));
+      if (!indianVoice) indianVoice = voices.find(v => v.name.toLowerCase().includes("india"));
+      if (!indianVoice) indianVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Zira") || v.name.includes("Samantha")));
+
+      return indianVoice;
+    }
+
+    // Voice Synthesis Engine with Authentic Indian Voice
     window.activeUtterance = null;
 
     function speak(text) {
@@ -655,26 +686,23 @@
       setTimeout(() => {
         try { window.speechSynthesis.resume(); } catch (e) {}
 
-        const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
-        
-        // Find pleasant natural English female voice
-        let selectedVoice = voices.find(v => v.lang && v.lang.startsWith("en") && (v.name.includes("Zira") || v.name.includes("Samantha") || v.name.includes("Female") || v.name.includes("Google US English") || v.name.includes("Jenny") || v.name.includes("Victoria")));
-        if (!selectedVoice) selectedVoice = voices.find(v => v.lang && v.lang.startsWith("en"));
-
         const cleanText = text.replace(/[*_#`~\[\]]/g, '').trim();
+        const textIsHindi = isHindi(cleanText);
+        const selectedVoice = getIndianVoice(textIsHindi);
+
         const utterance = new SpeechSynthesisUtterance(cleanText);
         window.activeUtterance = utterance;
 
         if (selectedVoice) {
           utterance.voice = selectedVoice;
-          utterance.lang = selectedVoice.lang || 'en-US';
+          utterance.lang = selectedVoice.lang || (textIsHindi ? 'hi-IN' : 'en-IN');
         } else {
-          utterance.lang = 'en-US';
+          utterance.lang = textIsHindi ? 'hi-IN' : 'en-IN';
         }
 
         utterance.volume = 1.0;
         utterance.rate = 1.0;
-        utterance.pitch = 1.06;
+        utterance.pitch = 1.05; // Pleasant, natural Indian tone
 
         utterance.onstart = () => {
           isSpeaking = true;
@@ -708,53 +736,54 @@
       }, 50);
     }
 
-    // Voice Command & AI Intelligence Router (100% English, Direct & Natural)
+    // Bilingual Voice Command & AI Intelligence Router
     async function handleVoiceQuery(query) {
       const q = query.toLowerCase().trim();
+      const inHindi = isHindi(query) || q.includes("karo") || q.includes("batao") || q.includes("kya");
 
-      // Exit / Stop
-      if (q === "stop" || q === "bye" || q === "goodbye" || q === "exit" || q === "quit" || q.includes("pause conversation") || q.includes("stop listening")) {
+      // Stop / Exit
+      if (q === "stop" || q === "bye" || q === "goodbye" || q === "exit" || q.includes("रुको") || q.includes("बाय") || q.includes("अलविदा") || q.includes("बस करो") || q.includes("बंद करो")) {
         isSessionActive = false;
-        speak("Goodbye! Have a wonderful day ahead!");
+        speak(inHindi ? "अलविदा! जब भी ज़रूरत हो, मुझे याद कीजिएगा।" : "Goodbye! Have a wonderful day ahead!");
         return;
       }
 
       // Play Music / Song on YouTube
-      if (q.startsWith("play") || q.includes("play song") || q.includes("play music")) {
-        const songName = query.replace(/(play|song|music|on youtube)/gi, '').trim() || "trending songs";
-        const reply = `Playing ${songName} on YouTube!`;
+      if (q.startsWith("play") || q.includes("गाना") || q.includes("song") || q.includes("music") || q.includes("बजाओ")) {
+        const songName = query.replace(/(play|song|music|on youtube|गाना|बजाओ|चलाओ|प्ले)/gi, '').trim() || "trending songs";
+        const reply = inHindi ? `YouTube पर ${songName} बजा रही हूँ!` : `Playing ${songName} on YouTube!`;
         speak(reply);
         window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(songName)}`, "_blank");
         return;
       }
 
       // WhatsApp
-      if (q.includes("whatsapp")) {
-        speak("Opening WhatsApp Web for you.");
+      if (q.includes("whatsapp") || q.includes("व्हाट्सएप")) {
+        speak(inHindi ? "व्हाट्सएप वेब खोल रही हूँ।" : "Opening WhatsApp Web for you.");
         window.open("https://web.whatsapp.com", "_blank");
         return;
       }
 
       // YouTube
-      if (q === "youtube" || q.includes("open youtube")) {
-        speak("Opening YouTube.");
+      if (q === "youtube" || q.includes("open youtube") || q.includes("यूट्यूब")) {
+        speak(inHindi ? "यूट्यूब खोल रही हूँ।" : "Opening YouTube.");
         window.open("https://www.youtube.com", "_blank");
         return;
       }
 
       // Google Search
-      if (q.startsWith("search") || q.includes("search google for")) {
-        const term = query.replace(/(search for|search google for|search google|search)/gi, '').trim() || "Google";
-        speak(`Searching Google for ${term}.`);
+      if (q.startsWith("search") || q.includes("गूगल") || q.includes("सर्च") || q.includes("search google for")) {
+        const term = query.replace(/(search for|search google for|search google|search|गूगल|सर्च|पर खोजो|ढूंढो)/gi, '').trim() || "Google";
+        speak(inHindi ? `गूगल पर ${term} खोज रही हूँ।` : `Searching Google for ${term}.`);
         window.open(`https://www.google.com/search?q=${encodeURIComponent(term)}`, "_blank");
         return;
       }
 
       // Weather
-      if (q.includes("weather") || q.includes("temperature")) {
+      if (q.includes("weather") || q.includes("मौसम") || q.includes("तापमान") || q.includes("temperature")) {
         setVisualState("thinking");
         try {
-          const cityMatch = query.match(/(?:in|for|of)\s+([a-zA-Z\s]+)/i);
+          const cityMatch = query.match(/(?:in|for|of|में|का)\s+([a-zA-Z\u0900-\u097F\s]+)/i);
           const city = cityMatch ? cityMatch[1].trim() : "Delhi";
           const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
           const geoData = await geoRes.json();
@@ -764,52 +793,55 @@
             const wData = await wRes.json();
             const temp = wData.current_weather.temperature;
             const wind = wData.current_weather.windspeed;
-            const reply = `The current temperature in ${name}, ${country} is ${temp} degrees Celsius with a wind speed of ${wind} kilometers per hour.`;
+            const reply = inHindi ? `${name} में इस समय तापमान ${temp}°C है और हवा की गति ${wind} km/h है।` : `The current temperature in ${name}, ${country} is ${temp} degrees Celsius with wind speed of ${wind} kilometers per hour.`;
             speak(reply);
             return;
           }
         } catch (e) {
           console.log("Weather error:", e);
         }
-        speak("The weather is pleasant and clear today!");
+        speak(inHindi ? "आज मौसम एकदम सुहाना और साफ है!" : "The weather is pleasant and clear today!");
         return;
       }
 
       // Jokes
-      if (q.includes("joke") || q.includes("tell me something funny")) {
-        const jokes = [
-          "Why do programmers prefer dark mode? Because light attracts bugs!",
-          "Why was the computer cold? It forgot to close its Windows!",
-          "Why did the smartphone need glasses? Because it lost its contacts!"
+      if (q.includes("joke") || q.includes("चुटकुला") || q.includes("मजाक") || q.includes("हंसाओ")) {
+        const hindiJokes = [
+          "टीचर ने पूछा: बताओ न्यूटन का चौथा नियम क्या है? संजू बोला: जब भूख लगे तो समोसा पेट की तरफ खिंचता है!",
+          "पप्पू डॉक्टर से बोला: मुझे नींद में चलने की बीमारी है! डॉक्टर: रात को ताला लगा लिया करो! पप्पू: फिर बाहर घूमने कैसे जाऊँगा?"
         ];
-        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+        const engJokes = [
+          "Why do programmers prefer dark mode? Because light attracts bugs!",
+          "Why was the computer cold? It forgot to close its Windows!"
+        ];
+        const randomJoke = inHindi ? hindiJokes[Math.floor(Math.random() * hindiJokes.length)] : engJokes[Math.floor(Math.random() * engJokes.length)];
         speak(randomJoke);
         return;
       }
 
       // Current Time
-      if (q.includes("time") || q.includes("what time")) {
+      if (q.includes("time") || q.includes("समय") || q.includes("कितने बजे")) {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        speak(`It is currently ${timeStr}.`);
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+        speak(inHindi ? `घड़ी में अभी ठीक ${timeStr} बजे हैं।` : `It is currently ${timeStr}.`);
         return;
       }
 
       // Current Date
-      if (q.includes("date") || q.includes("what is today")) {
+      if (q.includes("date") || q.includes("तारीख") || q.includes("दिन")) {
         const now = new Date();
-        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        speak(`Today is ${dateStr}.`);
+        const dateStr = now.toLocaleDateString(inHindi ? 'hi-IN' : 'en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        speak(inHindi ? `आज ${dateStr} है।` : `Today is ${dateStr}.`);
         return;
       }
 
       // Creator
-      if (q.includes("who made you") || q.includes("who created you")) {
-        speak("I was created by Buddy to be your smart personal voice assistant!");
+      if (q.includes("who made you") || q.includes("who created you") || q.includes("किसने बनाया") || q.includes("tumhe kisne banaya")) {
+        speak(inHindi ? "मुझे Buddy ने बनाया है ताकि मैं आपकी स्मार्ट पर्सनल वॉइस असिस्टेंट बन सकूँ!" : "I was created by Buddy to be your smart personal voice assistant!");
         return;
       }
 
-      // General Questions -> Gemini AI (Direct English & No Repeated Names)
+      // General Questions -> Gemini AI (Bilingual Indian Context)
       setVisualState("thinking");
       try {
         const res = await fetch("/api/chat", {
@@ -822,7 +854,7 @@
         });
 
         const data = await res.json();
-        const reply = data.reply || data.error || "Sorry, I encountered a temporary connection issue.";
+        const reply = data.reply || data.error || (inHindi ? "माफ़ कीजिए, कोई तकनीकी समस्या आई।" : "Sorry, I encountered a temporary connection issue.");
         
         conversationHistory.push({ role: "user", text: query });
         conversationHistory.push({ role: "assistant", text: reply });
@@ -831,7 +863,7 @@
         speak(reply);
       } catch (err) {
         console.error(err);
-        speak("I had trouble reaching the network. Please ask your next question!");
+        speak(inHindi ? "नेटवर्क में समस्या आई, कृपया अगला सवाल पूछिए।" : "I had trouble reaching the network. Please ask your next question!");
       }
     }
   </script>
