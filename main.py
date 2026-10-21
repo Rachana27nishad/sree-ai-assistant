@@ -185,72 +185,106 @@ def ask_gemini(prompt):
         return f"Gemini API Error: {str(e)}"
 
 # ==========================================
-# Command Handling with Sree Dialogues
+# Command Handling with Full System Access
 # ==========================================
 def handle_command(query):
     if not query:
         return True
 
-    user_name = profile.get("user_name", "Buddy Rachana")
+    q = query.lower().strip()
 
     # Who created you?
-    if any(w in query for w in ["who made you", "who created you", "tumhe kisne banaya", "तुम्हें किसने बनाया", "creator"]):
-        responses = [
-            f"मुझे मेरी सबसे प्यारी Buddy Rachana दीदी ने बनाया है! मेरा नाम श्री (Sree) रखा है उन्होंने! 👧💖",
-            f"अरे! मेरी जन्मदाता और सुपर बॉस Buddy Rachana ही हैं! उन्होंने ही मेरा नाम श्री (Sree) रखा है! 🎀"
-        ]
-        speak(random.choice(responses))
+    if any(w in q for w in ["who made you", "who created you", "tumhe kisne banaya", "तुम्हें किसने बनाया", "creator"]):
+        speak("I was created by Buddy to assist with all desktop, web, and automation tasks!")
         return True
 
     # Stop / Exit
-    elif any(word in query for word in ["exit", "stop", "bye", "बंद करो", "बाय", "अलविदा"]):
-        speak(f"बाय-बाय {user_name} दीदी! श्री जा रही है खेलने! अपना ख्याल रखना! 👋🌸")
+    if any(word in q for word in ["exit", "stop", "bye", "बंद करो", "बाय", "अलविदा", "रुको"]):
+        speak("Goodbye! Have a wonderful day ahead!")
         return False
 
-    # Open WhatsApp
-    elif any(w in query for w in ["whatsapp", "whatsaap", "watsapp", "watshap", "व्हाट्सएप", "व्हाट्सऐप"]):
-        responses = [
-            f"अरे वाह! श्री व्हाट्सएप खोल रही है {user_name} दीदी... पर ज्यादा देर चैट मत करना! 🤭📱",
-            f"येश! आपका व्हाट्सएप खुल गया {user_name}! 🚀"
-        ]
-        speak(random.choice(responses))
-        webbrowser.open("https://web.whatsapp.com")
+    # Notepad Automation: Type & Open in Notepad
+    if any(w in q for w in ["notepad", "नोटपैड", "note down", "type in notepad"]):
+        note_text = re.sub(r'(open notepad and|notepad me type karo|notepad me likho|notepad me|notepad|type in notepad|note down|type this|note karo|नोटपैड में टाइप करो|नोटपैड में लिखो|नोटपैड|लिखो|टाइप करो)', '', query, flags=re.IGNORECASE).strip()
+        if not note_text:
+            note_text = "Notes from Sree Voice Assistant"
+        
+        note_path = os.path.join(tempfile.gettempdir(), "Sree_Note.txt")
+        with open(note_path, "w", encoding="utf-8") as f:
+            f.write(f"=== Sree Note ({datetime.datetime.now().strftime('%Y-%m-%d %I:%M %p')}) ===\n\n{note_text}\n")
+        
+        speak(f"Notepad में टाइप कर दिया है: \"{note_text}\"")
+        subprocess.Popen(["notepad.exe", note_path])
         return True
 
-    # Open YouTube
-    elif any(w in query for w in ["youtube", "utube", "youtub", "यूट्यूब"]):
-        responses = [
-            f"श्री यूट्यूब खोल रही है {user_name}! चलिए मज़ेदार वीडियोस देखते हैं! 🍿🎬 Yay!",
-            f"अरे वाह! यूट्यूब खुल गया {user_name}! मज़ा आ गया! 🥳"
-        ]
-        speak(random.choice(responses))
-        webbrowser.open("https://www.youtube.com")
+    # WhatsApp Automation: Type & Send message
+    if any(w in q for w in ["whatsapp", "व्हाट्सएप", "व्हाट्सऐप"]):
+        msg = re.sub(r'(open whatsapp and|whatsapp par|whatsapp me|whatsapp|send message|send|type|bhejo|likho|likh kar|karke|ye|par message|व्हाट्सएप पर|व्हाट्सएप में|व्हाट्सएप|मैसेज भेजो|भेजो|लिखो|टाइप करो)', '', query, flags=re.IGNORECASE).strip()
+        if msg:
+            speak(f"व्हाट्सएप पर संदेश टाइप कर रही हूँ: \"{msg}\"")
+            webbrowser.open(f"https://web.whatsapp.com/send?text={urllib.parse.quote(msg)}")
+        else:
+            speak("व्हाट्सएप वेब खोल रही हूँ।")
+            webbrowser.open("https://web.whatsapp.com")
         return True
 
-    # Open Google
-    elif any(w in query for w in ["google", "gogal", "गूगल"]):
-        speak(f"गूगल बाबा के पास जा रहे हैं {user_name} दीदी! 🔍")
-        webbrowser.open("https://www.google.com")
+    # YouTube Automation: Play Specific Song or Video
+    if any(w in q for w in ["youtube", "यूट्यूब", "play", "गाना", "song", "music", "बजाओ", "चलाओ", "लगाओ"]):
+        song = re.sub(r'(youtube open karo aur|youtube open karke|youtube par|open youtube and play|play on youtube|play song|play music|play|on youtube|youtube|गाना बजाओ|गाना लगाओ|गाना चलाओ|यूट्यूब पर|यूट्यूब|बजाओ|लगाओ|चलाओ|प्ले करो|प्ले)', '', query, flags=re.IGNORECASE).strip()
+        if not song:
+            song = "trending songs"
+        speak(f"YouTube पर \"{song}\" चला रही हूँ!")
+        webbrowser.open(f"https://www.youtube.com/results?search_query={urllib.parse.quote(song)}")
+        return True
+
+    # Open Google / Search
+    if any(w in q for w in ["google", "गूगल", "search", "सर्च"]):
+        search_query = re.sub(r'(search for|search google for|search google|search|गूगल पर|गूगल|सर्च|पर खोजो|ढूंढो)', '', query, flags=re.IGNORECASE).strip()
+        if search_query:
+            speak(f"Searching Google for \"{search_query}\"")
+            webbrowser.open(f"https://www.google.com/search?q={urllib.parse.quote(search_query)}")
+        else:
+            speak("Opening Google.")
+            webbrowser.open("https://www.google.com")
+        return True
+
+    # Open Local System Apps
+    if "calculator" in q or "कैलकुलेटर" in q:
+        speak("Calculator खोल रही हूँ।")
+        os.system("calc")
+        return True
+
+    if "chrome" in q or "क्रोम" in q:
+        speak("Google Chrome खोल रही हूँ।")
+        os.system("start chrome")
+        return True
+
+    if "cmd" in q or "terminal" in q or "कमांड प्रॉम्प्ट" in q:
+        speak("Command Prompt खोल रही हूँ।")
+        os.system("start cmd")
+        return True
+
+    if "file explorer" in q or "my computer" in q:
+        speak("File Explorer खोल रही हूँ।")
+        os.system("explorer")
         return True
 
     # Current Time
-    elif any(w in query for w in ["time", "समय", "टाइम"]):
+    if any(w in q for w in ["time", "समय", "टाइम", "कितने बजे"]):
         current_time = datetime.datetime.now().strftime("%I:%M %p")
-        speak(f"{user_name} दीदी, घड़ी में टिक-टिक करके {current_time} बजा है! ⏰")
+        speak(f"घड़ी में अभी ठीक {current_time} बजे हैं।")
         return True
 
     # Current Date
-    elif any(w in query for w in ["date", "तारीख", "डेट"]):
+    if any(w in q for w in ["date", "तारीख", "डेट", "दिन"]):
         current_date = datetime.datetime.now().strftime("%A, %B %d, %Y")
-        speak(f"{user_name} दीदी, आज तारीख है {current_date}! 📅")
+        speak(f"आज तारीख है {current_date}।")
         return True
 
-    # General Questions -> Gemini AI (Sree Persona)
-    else:
-        speak(random.choice(["ओहो! रुकिए, श्री अपने छोटे से दिमाग से सोच के बताती है... 💡", f"Yay! श्री अभी बताती है {user_name} दीदी... ✨"]))
-        answer = ask_gemini(query)
-        speak(answer)
-        return True
+    # General Questions -> Gemini AI
+    answer = ask_gemini(query)
+    speak(answer)
+    return True
 
 # ==========================================
 # Main Loop

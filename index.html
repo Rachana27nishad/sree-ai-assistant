@@ -748,26 +748,49 @@
         return;
       }
 
-      // Play Music / Song on YouTube
-      if (q.startsWith("play") || q.includes("गाना") || q.includes("song") || q.includes("music") || q.includes("बजाओ")) {
-        const songName = query.replace(/(play|song|music|on youtube|गाना|बजाओ|चलाओ|प्ले)/gi, '').trim() || "trending songs";
-        const reply = inHindi ? `YouTube पर ${songName} बजा रही हूँ!` : `Playing ${songName} on YouTube!`;
+      // WhatsApp with pre-filled message
+      if ((q.includes("whatsapp") || q.includes("व्हाट्सएप")) && (q.includes("send") || q.includes("type") || q.includes("message") || q.includes("bhejo") || q.includes("likho") || q.includes("लिखो") || q.includes("भेजो") || q.includes("टाइप"))) {
+        const msg = query.replace(/(open whatsapp and|whatsapp par|whatsapp me|whatsapp|send message|send|type|bhejo|likho|likh kar|karke|ye|par message|व्हाट्सएप पर|व्हाट्सएप में|व्हाट्सएप|मैसेज भेजो|भेजो|लिखो|टाइप करो)/gi, '').trim() || "Hello!";
+        const reply = inHindi ? `व्हाट्सएप पर टाइप कर दिया है: "${msg}"! भेजने के लिए सेंड पर क्लिक करें।` : `Typed your WhatsApp message: "${msg}". Click send to deliver it!`;
         speak(reply);
-        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(songName)}`, "_blank");
+        window.open(`https://web.whatsapp.com/send?text=${encodeURIComponent(msg)}`, "_blank");
         return;
       }
 
-      // WhatsApp
+      // WhatsApp open generic
       if (q.includes("whatsapp") || q.includes("व्हाट्सएप")) {
         speak(inHindi ? "व्हाट्सएप वेब खोल रही हूँ।" : "Opening WhatsApp Web for you.");
         window.open("https://web.whatsapp.com", "_blank");
         return;
       }
 
-      // YouTube
-      if (q === "youtube" || q.includes("open youtube") || q.includes("यूट्यूब")) {
-        speak(inHindi ? "यूट्यूब खोल रही हूँ।" : "Opening YouTube.");
-        window.open("https://www.youtube.com", "_blank");
+      // Notepad typing & note saving
+      if (q.includes("notepad") || q.includes("नोटपैड") || (q.includes("note") && (q.includes("down") || q.includes("type") || q.includes("likho") || q.includes("लिखो")))) {
+        const noteText = query.replace(/(open notepad and|notepad me type karo|notepad me likho|notepad me|notepad|type in notepad|note down|type this|note karo|नोटपैड में टाइप करो|नोटपैड में लिखो|नोटपैड|लिखो|टाइप करो)/gi, '').trim() || "Note from Sree AI";
+        
+        try {
+          if (navigator.clipboard) navigator.clipboard.writeText(noteText);
+        } catch (e) {}
+
+        const blob = new Blob([noteText], { type: "text/plain;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Sree_Note_${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        const reply = inHindi ? `नोटपैड में टाइप कर दिया है और नोट सेव कर लिया है: "${noteText}"!` : `Typed in Notepad and saved note: "${noteText}"!`;
+        speak(reply);
+        return;
+      }
+
+      // Play Music / Song on YouTube
+      if ((q.includes("youtube") || q.includes("यूट्यूब")) || (q.startsWith("play") || q.includes("play song") || q.includes("गाना") || q.includes("music") || q.includes("बजाओ") || q.includes("लगाओ") || q.includes("lagao") || q.includes("chalao"))) {
+        const songName = query.replace(/(youtube open karo aur|youtube open karke|youtube par|open youtube and play|play on youtube|play song|play music|play|on youtube|youtube|गाना बजाओ|गाना लगाओ|गाना चलाओ|यूट्यूब पर|यूट्यूब|बजाओ|लगाओ|चलाओ|प्ले करो|प्ले)/gi, '').trim() || "trending music";
+        const reply = inHindi ? `YouTube पर ${songName} चला रही हूँ!` : `Playing ${songName} on YouTube!`;
+        speak(reply);
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(songName)}`, "_blank");
         return;
       }
 
